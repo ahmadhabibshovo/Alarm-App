@@ -1,4 +1,7 @@
-class Alarm {
+import 'package:alarm_app/data/datasources/app_database.dart';
+import 'package:drift/drift.dart';
+
+class AlarmEntity {
   int? id;
   String label;
   DateTime time;
@@ -8,7 +11,7 @@ class Alarm {
   String sound;
   bool vibrate;
 
-  Alarm({
+  AlarmEntity({
     this.id,
     required this.label,
     required this.time,
@@ -19,33 +22,29 @@ class Alarm {
     this.vibrate = true,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'label': label,
-      'time': time.toIso8601String(),
-      'isEnabled': isEnabled ? 1 : 0,
-      'repeatDays': repeatDays.join(','),
-      'snoozeDuration': snoozeDuration,
-      'sound': sound,
-      'vibrate': vibrate ? 1 : 0,
-    };
+  factory AlarmEntity.fromAlarm(Alarm alarm) {
+    return AlarmEntity(
+      id: alarm.id,
+      label: alarm.label,
+      time: alarm.time,
+      isEnabled: alarm.isEnabled,
+      repeatDays: alarm.repeatDays.split(',').where((s) => s.isNotEmpty).map(int.parse).toList(),
+      snoozeDuration: alarm.snoozeDuration,
+      sound: alarm.sound,
+      vibrate: alarm.vibrate,
+    );
   }
 
-  factory Alarm.fromMap(Map<String, dynamic> map) {
-    return Alarm(
-      id: map['id'],
-      label: map['label'],
-      time: DateTime.parse(map['time']),
-      isEnabled: map['isEnabled'] == 1,
-      repeatDays: (map['repeatDays'] as String)
-          .split(',')
-          .where((s) => s.isNotEmpty)
-          .map(int.parse)
-          .toList(),
-      snoozeDuration: map['snoozeDuration'],
-      sound: map['sound'],
-      vibrate: map['vibrate'] == 1,
+  AlarmsCompanion toCompanion() {
+    return AlarmsCompanion(
+      id: id == null ? const Value.absent() : Value(id!),
+      label: Value(label),
+      time: Value(time),
+      isEnabled: Value(isEnabled),
+      repeatDays: Value(repeatDays.join(',')),
+      snoozeDuration: Value(snoozeDuration),
+      sound: Value(sound),
+      vibrate: Value(vibrate),
     );
   }
 }

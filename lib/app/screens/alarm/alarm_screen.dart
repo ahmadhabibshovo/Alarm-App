@@ -19,7 +19,6 @@ class _AlarmScreenState extends State<AlarmScreen> {
   void initState() {
     super.initState();
     _startVibration();
-    _playSound();
   }
 
   void _startVibration() async {
@@ -28,31 +27,9 @@ class _AlarmScreenState extends State<AlarmScreen> {
     }
   }
 
-  void _playSound() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'alarm_channel',
-      'Alarm Channel',
-      channelDescription: 'Channel for alarm notifications',
-      importance: Importance.max,
-      priority: Priority.high,
-      sound: RawResourceAndroidNotificationSound('default'),
-      playSound: true,
-    );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
-    await flutterLocalNotificationsPlugin.show(
-      widget.alarmId,
-      'Alarm',
-      'Time to wake up!',
-      platformChannelSpecifics,
-      payload: widget.alarmId.toString(),
-    );
-  }
-
   void _snooze() {
     Vibration.cancel();
+    flutterLocalNotificationsPlugin.cancel(widget.alarmId);
     final alarmProvider = Provider.of<AlarmProvider>(context, listen: false);
     // Snooze logic here
     Navigator.pop(context);
@@ -60,8 +37,9 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   void _dismiss() {
     Vibration.cancel();
+    flutterLocalNotificationsPlugin.cancel(widget.alarmId);
     final alarmProvider = Provider.of<AlarmProvider>(context, listen: false);
-    // Dismiss logic here
+    alarmProvider.deleteAlarm(widget.alarmId);
     Navigator.pop(context);
   }
 

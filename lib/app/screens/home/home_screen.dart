@@ -1,5 +1,6 @@
 import 'package:alarm_app/app/providers/alarm_provider.dart';
 import 'package:alarm_app/app/screens/edit_alarm/edit_alarm_screen.dart';
+import 'package:alarm_app/app/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -66,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(
                         builder: (context) => EditAlarmScreen(alarm: alarm),
                       ),
-                    );
+                    ).then((_) => alarmProvider.loadAlarms());
                   },
                 );
               },
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(
               builder: (context) => const EditAlarmScreen(),
             ),
-          );
+          ).then((_) => alarmProvider.loadAlarms());
         },
         child: const Icon(Icons.add),
       ),

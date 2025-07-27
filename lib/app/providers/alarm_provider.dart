@@ -1,29 +1,29 @@
+import 'package:alarm_app/data/datasources/app_database.dart';
 import 'package:flutter/material.dart';
 import 'package:alarm_app/domain/entities/alarm.dart';
-import 'package:alarm_app/data/datasources/alarm_helper.dart';
 import 'package:alarm_app/app/services/alarm_service.dart';
 
 class AlarmProvider with ChangeNotifier {
-  final AlarmHelper _alarmHelper = AlarmHelper();
-  List<Alarm> _alarms = [];
+  final AppDatabase _db = AppDatabase();
+  List<AlarmEntity> _alarms = [];
   final AlarmService _alarmService = AlarmService();
 
-
-  List<Alarm> get alarms => _alarms;
+  List<AlarmEntity> get alarms => _alarms;
 
   Future<void> loadAlarms() async {
-    _alarms = await _alarmHelper.getAlarms();
+    final alarmList = await _db.allAlarms;
+    _alarms = alarmList.map((alarm) => AlarmEntity.fromAlarm(alarm)).toList();
     notifyListeners();
   }
 
-  Future<void> addAlarm(Alarm alarm) async {
-    await _alarmHelper.insertAlarm(alarm);
+  Future<void> addAlarm(AlarmEntity alarm) async {
+    await _db.insertAlarm(alarm.toCompanion());
     await _alarmService.scheduleAlarm(alarm);
     await loadAlarms();
   }
 
-  Future<void> updateAlarm(Alarm alarm) async {
-    await _alarmHelper.updateAlarm(alarm);
+  Future<void> updateAlarm(AlarmEntity alarm) async {
+    await _db.updateAlarm(alarm.toCompanion());
     if (alarm.isEnabled) {
       await _alarmService.scheduleAlarm(alarm);
     } else {
@@ -33,7 +33,7 @@ class AlarmProvider with ChangeNotifier {
   }
 
   Future<void> deleteAlarm(int id) async {
-    await _alarmHelper.deleteAlarm(id);
+    await _db.deleteAlarm(id);
     await _alarmService.cancelAlarm(id);
     await loadAlarms();
   }
