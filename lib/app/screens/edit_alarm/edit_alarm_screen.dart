@@ -3,9 +3,10 @@ import 'package:alarm_app/domain/entities/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
 
 class EditAlarmScreen extends StatefulWidget {
-  final Alarm? alarm;
+  final AlarmEntity? alarm;
 
   const EditAlarmScreen({super.key, this.alarm});
 
@@ -18,6 +19,7 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
   late TextEditingController _labelController;
   late List<int> _selectedDays;
   late bool _vibrate;
+  late String _sound;
 
   @override
   void initState() {
@@ -27,11 +29,13 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
       _labelController = TextEditingController(text: widget.alarm!.label);
       _selectedDays = widget.alarm!.repeatDays;
       _vibrate = widget.alarm!.vibrate;
+      _sound = widget.alarm!.sound;
     } else {
       _selectedTime = TimeOfDay.now();
       _labelController = TextEditingController();
       _selectedDays = [];
       _vibrate = true;
+      _sound = 'default';
     }
   }
 
@@ -76,6 +80,11 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
                 });
               },
             ),
+            ListTile(
+              title: const Text('Sound'),
+              trailing: Text(_sound),
+              onTap: _pickSound,
+            ),
           ],
         ),
       ),
@@ -111,18 +120,31 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
     }
   }
 
+  void _pickSound() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+    );
+
+    if (result != null) {
+      setState(() {
+        _sound = result.files.single.path!;
+      });
+    }
+  }
+
   void _saveAlarm() {
     final now = DateTime.now();
     final time = DateTime(
         now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
 
-    final alarm = Alarm(
+    final alarm = AlarmEntity(
       id: widget.alarm?.id,
       label: _labelController.text,
       time: time,
       repeatDays: _selectedDays,
       vibrate: _vibrate,
       isEnabled: widget.alarm?.isEnabled ?? true,
+      sound: _sound,
     );
 
     final alarmProvider = Provider.of<AlarmProvider>(context, listen: false);
