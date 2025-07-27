@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.alarmapp">
+
+    <!-- Required permissions -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        // ...existing code...
+
+        <!-- Alarm Receiver -->
+        <receiver 
+            android:name=".receivers.AlarmReceiver" 
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.alarmapp.ALARM_TRIGGERED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Boot Receiver -->
+        <receiver 
+            android:name=".receivers.BootReceiver" 
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Alarm Service -->
+        <service 
+            android:name=".services.AlarmService" 
+            android:enabled="true" 
+            android:exported="false" />
+
+        // ...existing code...
+    </application>
+</manifest>
